@@ -225,3 +225,114 @@
       <span class="stat-label">Best Streak</span>
     </div>
   </div>
+    <script>
+  const swatchEl   = document.getElementById('swatch');
+  const rgbLabel   = document.getElementById('rgb-label');
+  const optionsEl  = document.getElementById('options');
+  const feedbackEl = document.getElementById('feedback');
+  const streakEl   = document.getElementById('streak');
+  const nextBtn    = document.getElementById('next-btn');
+  const scoreEl    = document.getElementById('score');
+  const totalEl    = document.getElementById('total');
+  const bestEl     = document.getElementById('best');
+
+  let score = 0, total = 0, streak = 0, bestStreak = 0;
+  let correctColor = null;
+
+  function randByte() {
+    return Math.floor(Math.random() * 256);
+  }
+
+  function randomColor() {
+    return { r: randByte(), g: randByte(), b: randByte() };
+  }
+
+  function toRGB(c) {
+    return `rgb(${c.r}, ${c.g}, ${c.b})`;
+  }
+
+  function toLabel(c) {
+    return `rgb(${c.r}, ${c.g}, ${c.b})`;
+  }
+
+  function nearbyColor(c) {
+    const offset = () => Math.floor(Math.random() * 80) - 40;
+    const clamp  = v => Math.max(0, Math.min(255, v));
+    return {
+      r: clamp(c.r + offset()),
+      g: clamp(c.g + offset()),
+      b: clamp(c.b + offset())
+    };
+  }
+
+  function shuffle(arr) {
+    for (let i = arr.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [arr[i], arr[j]] = [arr[j], arr[i]];
+    }
+    return arr;
+  }
+
+  function newRound() {
+    correctColor = randomColor();
+
+    const options = shuffle([
+      { color: correctColor, isCorrect: true },
+      { color: nearbyColor(correctColor), isCorrect: false },
+      { color: nearbyColor(correctColor), isCorrect: false },
+    ]);
+
+    swatchEl.style.background = toRGB(correctColor);
+    rgbLabel.textContent = toLabel(correctColor);
+
+    feedbackEl.textContent = '';
+    feedbackEl.className = 'feedback empty';
+    streakEl.textContent = '';
+    nextBtn.classList.remove('visible');
+
+    optionsEl.innerHTML = '';
+    options.forEach(opt => {
+      const btn = document.createElement('button');
+      btn.className = 'option-btn';
+      btn.textContent = toLabel(opt.color);
+      btn.addEventListener('click', () => handleGuess(opt.isCorrect, btn));
+      optionsEl.appendChild(btn);
+    });
+  }
+
+  function handleGuess(isCorrect, clickedBtn) {
+    total++;
+    totalEl.textContent = total;
+
+    [...optionsEl.querySelectorAll('.option-btn')].forEach(b => b.disabled = true);
+
+    [...optionsEl.querySelectorAll('.option-btn')].forEach(b => {
+      if (b.textContent === toLabel(correctColor)) b.classList.add('correct');
+    });
+
+    if (isCorrect) {
+      score++;
+      streak++;
+      if (streak > bestStreak) bestStreak = streak;
+      scoreEl.textContent = score;
+      bestEl.textContent = bestStreak;
+      feedbackEl.textContent = '✓ Correct!';
+      feedbackEl.className = 'feedback correct';
+      if (streak >= 3) streakEl.textContent = `🔥 ${streak} in a row!`;
+    } else {
+      clickedBtn.classList.remove('correct');
+      clickedBtn.classList.add('wrong');
+      streak = 0;
+      feedbackEl.textContent = '✗ Wrong — highlighted the answer';
+      feedbackEl.className = 'feedback wrong';
+    }
+
+    nextBtn.classList.add('visible');
+  }
+
+  nextBtn.addEventListener('click', newRound);
+
+  newRound();
+</script>
+</body>
+</html>
