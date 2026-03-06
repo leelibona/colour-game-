@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Color Guess</title>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #0e0e10;
+      --surface: #18181b;
+      --border: #2a2a2e;
+      --text: #f4f4f5;
+      --muted: #71717a;
+      --accent: #e4e4e7;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'DM Sans', sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem 1rem;
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 3rem;
+    }
+
+    header h1 {
+      font-family: 'Space Mono', monospace;
+      font-size: clamp(1.1rem, 3vw, 1.4rem);
+      font-weight: 700;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--accent);
+    }
+
+    header p {
+      margin-top: 0.5rem;
+      font-size: 0.85rem;
+      color: var(--muted);
+      font-weight: 300;
+    }
+
+    .swatch-wrap {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 1.2rem;
+      margin-bottom: 2.5rem;
+    }
+
+    .swatch {
+      width: 140px;
+      height: 140px;
+      border-radius: 50%;
+      transition: background 0.4s ease;
+      box-shadow: 0 0 0 1px var(--border), 0 8px 32px rgba(0,0,0,0.5);
+    }
+
+    .rgb-label {
+      font-family: 'Space Mono', monospace;
+      font-size: 1.1rem;
+      letter-spacing: 0.08em;
+      color: var(--text);
+    }
+
+    .options {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 0.65rem;
+      width: 100%;
+      max-width: 420px;
+      margin-bottom: 2rem;
+    }
+
+    .option-btn {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 0.7rem 0.4rem;
+      font-family: 'Space Mono', monospace;
+      font-size: 0.72rem;
+      color: var(--muted);
+      cursor: pointer;
+      letter-spacing: 0.04em;
+      transition: all 0.15s ease;
+    }
+
+    .option-btn:hover:not(:disabled) {
+      border-color: var(--accent);
+      color: var(--text);
+      transform: translateY(-1px);
+    }
+
+    .option-btn.correct {
+      border-color: #4ade80;
+      color: #4ade80;
+      background: rgba(74, 222, 128, 0.06);
+    }
+
+    .option-btn.wrong {
+      border-color: #f87171;
+      color: #f87171;
+      background: rgba(248, 113, 113, 0.06);
+    }
+
+    .option-btn:disabled {
+      cursor: default;
+      opacity: 0.6;
+    }
+
+    .feedback {
+      font-size: 0.9rem;
+      font-weight: 500;
+      min-height: 1.4rem;
+      text-align: center;
+      letter-spacing: 0.03em;
+      transition: opacity 0.3s;
+    }
+
+    .feedback.correct { color: #4ade80; }
+    .feedback.wrong   { color: #f87171; }
+    .feedback.empty   { opacity: 0; }
+
+    .stats {
+      display: flex;
+      gap: 2.5rem;
+      margin-top: 2.5rem;
+      padding-top: 1.5rem;
+      border-top: 1px solid var(--border);
+    }
+
+    .stat {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.2rem;
+    }
+
+    .stat-num {
+      font-family: 'Space Mono', monospace;
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    .stat-label {
+      font-size: 0.72rem;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+    }
+
+    .next-btn {
+      display: none;
+      margin-top: 1.5rem;
+      background: transparent;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 0.6rem 1.6rem;
+      font-family: 'Space Mono', monospace;
+      font-size: 0.75rem;
+      color: var(--muted);
+      letter-spacing: 0.1em;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    .next-btn:hover {
+      border-color: var(--accent);
+      color: var(--text);
+    }
+
+    .next-btn.visible { display: inline-block; }
+
+    .streak {
+      font-family: 'Space Mono', monospace;
+      font-size: 0.7rem;
+      color: #fbbf24;
+      letter-spacing: 0.08em;
+      min-height: 1.1rem;
+      margin-top: 0.3rem;
+    }
+  </style>
+</head>
